@@ -11,7 +11,7 @@ import (
 
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/" {
-		http.NotFound(w, r)
+		app.notFound(w)
 		return
 	}
 
@@ -24,18 +24,14 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 	// Gọi template
 	ts, err := template.ParseFiles(files...)
 	if err != nil {
-		app.errorLog.Print(err.Error()) // log lỗi vào file log của ứng dụng thay vì log ra stdout
-		//log.Println(err.Error())
-		http.Error(w, "Internal Server Error", 500)
+		app.serverError(w, err)
 		return
 	}
 
 	// Render template
 	err = ts.ExecuteTemplate(w, "base", nil)
 	if err != nil {
-		app.errorLog.Print(err.Error())
-		//log.Println(err.Error())
-		http.Error(w, "Internal Server Error", 500)
+		app.serverError(w, err)
 	}
 	//w.Write([]byte("Toi dang test HTTP web"))
 }
@@ -59,7 +55,7 @@ func (app *application) snippetCreate(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Allow", "POST")
 		// w.WriteHeader(405)
 		// w.Write([]byte("Method Not Allowed"))
-		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
+		app.clientError(w, http.StatusMethodNotAllowed)
 		return
 	}
 
@@ -69,7 +65,7 @@ func (app *application) snippetCreate(w http.ResponseWriter, r *http.Request) {
 func (app *application) jsonForTest(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		w.Header().Set("Allow", "GET")
-		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
+		app.clientError(w, http.StatusMethodNotAllowed)
 		return
 	}
 	//w.Header()["CONTENT-TYPE"] = []string{"application/json"}
@@ -80,7 +76,7 @@ func (app *application) jsonForTest(w http.ResponseWriter, r *http.Request) {
 func (app *application) snippetView(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(r.URL.Query().Get("id"))
 	if err != nil || id < 1 {
-		http.NotFound(w, r)
+		app.notFound(w)
 		return
 	}
 	fmt.Fprintf(w, "Displaying snippet with ID %d", id)
