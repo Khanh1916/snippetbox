@@ -7,7 +7,7 @@ func (app *application) routes() *http.ServeMux {
 	mux := http.NewServeMux()
 	// Đăng các route cụ thể trước, rồi đến catch-all
 	//mux.HandleFunc("/view/", view)    // subtree: /view/...
-	mux.HandleFunc("/view", app.snippetView) // fixed path: /view
+	mux.HandleFunc("/snippet/view", app.snippetView) // fixed path: /view
 	mux.HandleFunc("/snippet/create", app.snippetCreate)
 
 	mux.HandleFunc("example.com/local", app.handlerHost) // host-specific
