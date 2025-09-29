@@ -17,17 +17,14 @@ type config struct {
 type application struct {
 	errorLog *log.Logger
 	infoLog  *log.Logger
+	cfg      config
 }
 
 func main() {
-	// Khởi tạo cấu hình ứng dụng
-	var cfg config
+	// Khởi tạo cấu hình
+	cfg := config{}
 
-	// Đọc cờ dòng lệnh
-	flag.StringVar(&cfg.addr, "addr", ":4000", "HTTP network address")
-	flag.StringVar(&cfg.staticDir, "static-dir", "./ui/static", "Path to static assets")
-	flag.Parse()
-
+	// Tạo loggers
 	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
 	errorLog := log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
 
@@ -35,38 +32,23 @@ func main() {
 	app := &application{
 		errorLog: errorLog,
 		infoLog:  infoLog,
+		cfg:      cfg,
 	}
-
-	mux := http.NewServeMux()
-	// Đăng các route cụ thể trước, rồi đến catch-all
-	//mux.HandleFunc("/view/", view)    // subtree: /view/...
-	mux.HandleFunc("/view", app.snippetView) // fixed path: /view
-	mux.HandleFunc("/snippet/create", app.snippetCreate)
-
-	mux.HandleFunc("example.com/local", app.handlerHost) // host-specific
-	mux.HandleFunc("/local", app.handlerGeneral)         // non-host-specific
-
-	mux.HandleFunc("/create", app.create) // fixed path: /create
-	mux.HandleFunc("/json", app.jsonForTest)
-
-	// File server cho static assets
-	fs := noDirFileSystem{http.Dir(cfg.staticDir)}
-	// StripPrefix để bỏ "/static" khỏi URL trước khi gửi đến file server
-	mux.Handle("/static/", http.StripPrefix("/static", http.FileServer(fs)))
-
-	// Catch-all cuối cùng
-	mux.HandleFunc("/", app.home)
+	// Đọc cờ dòng lệnh
+	flag.StringVar(&app.cfg.addr, "addr", ":4000", "HTTP network address")
+	flag.StringVar(&app.cfg.staticDir, "static-dir", "./ui/static", "Path to static assets")
+	flag.Parse()
 
 	// Tạo server HTTP để bắt được các error log từ server
 	// (thay vì chỉ in ra stdout)
 	srv := &http.Server{
-		Addr:     cfg.addr,
+		Addr:     app.cfg.addr,
 		ErrorLog: errorLog,
-		Handler:  mux,
+		Handler:  app.routes(),
 	}
 
-	infoLog.Printf("Server started on %s", cfg.addr)
+	app.infoLog.Printf("Server started on %s", app.cfg.addr)
 	err := srv.ListenAndServe()
 
-	errorLog.Fatal(err)
+	app.errorLog.Fatal(err)
 }
