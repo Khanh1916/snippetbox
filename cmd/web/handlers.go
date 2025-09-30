@@ -1,12 +1,16 @@
 package main
 
 import (
+	"errors"
 	"fmt"
-	"html/template"
+
+	//"html/template"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strconv"
+
+	"github.com/Khanh1916/snippetbox/internal/models"
 )
 
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
@@ -15,29 +19,35 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	files := []string{
-		"./ui/html/base.html",
-		"./ui/html/partials/nav.html",
-		"./ui/html/pages/home.html",
-	}
-
-	// Gọi template
-	ts, err := template.ParseFiles(files...)
+	snippets, err := app.snippets.Latest()
 	if err != nil {
 		app.serverError(w, err)
 		return
 	}
 
-	// Render template
-	err = ts.ExecuteTemplate(w, "base", nil)
-	if err != nil {
-		app.serverError(w, err)
+	for _, snippet := range snippets {
+		fmt.Fprintf(w, "%+v\n", snippet)
 	}
-	//w.Write([]byte("Toi dang test HTTP web"))
-}
 
-func (app *application) create(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("CREATING HTTP web"))
+	// files := []string{
+	// 	"./ui/html/base.html",
+	// 	"./ui/html/partials/nav.html",
+	// 	"./ui/html/pages/home.html",
+	// }
+
+	// // Gọi template
+	// ts, err := template.ParseFiles(files...)
+	// if err != nil {
+	// 	app.serverError(w, err)
+	// 	return
+	// }
+
+	// // Render template
+	// err = ts.ExecuteTemplate(w, "base", nil)
+	// if err != nil {
+	// 	app.serverError(w, err)
+	// }
+	// //w.Write([]byte("Toi dang test HTTP web"))
 }
 
 // Handler cho host-specific
@@ -70,24 +80,27 @@ func (app *application) snippetCreate(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, fmt.Sprintf("/snippet/view?id=%d", id), http.StatusSeeOther)
 }
 
-func (app *application) jsonForTest(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		w.Header().Set("Allow", "GET")
-		app.clientError(w, http.StatusMethodNotAllowed)
-		return
-	}
-	//w.Header()["CONTENT-TYPE"] = []string{"application/json"}
-	w.Header().Set("Content-Type", "application/json")
-	w.Write([]byte(`{"name": "John", "age": 30}`))
-}
-
 func (app *application) snippetView(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(r.URL.Query().Get("id"))
 	if err != nil || id < 1 {
 		app.notFound(w)
 		return
 	}
-	fmt.Fprintf(w, "Displaying snippet with ID %d", id)
+
+	// Lấy record từ database
+	snippet, err := app.snippets.Get(id)
+	if err != nil {
+		if errors.Is(err, models.ErrNoRecord) {
+			app.notFound(w)
+			return
+		} else {
+			app.serverError(w, err)
+		}
+		return
+	}
+
+	// Hiển thị dữ liệu lên trình duyệt
+	fmt.Fprintf(w, "%+v", snippet)
 }
 
 // downloadFile phục vụ file tĩnh để tải về

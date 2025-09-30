@@ -13,9 +13,6 @@ func (app *application) routes() *http.ServeMux {
 	mux.HandleFunc("example.com/local", app.handlerHost) // host-specific
 	mux.HandleFunc("/local", app.handlerGeneral)         // non-host-specific
 
-	mux.HandleFunc("/create", app.create) // fixed path: /create
-	mux.HandleFunc("/json", app.jsonForTest)
-
 	// File server cho static assets
 	fs := noDirFileSystem{http.Dir(app.cfg.staticDir)}
 	// StripPrefix để bỏ "/static" khỏi URL trước khi gửi đến file server
