@@ -5,7 +5,8 @@ import (
 	"fmt"
 	"net/http"
 	"os"
-	"path/filepath"
+
+	//"path/filepath"
 	"strconv"
 
 	"github.com/Khanh1916/snippetbox/internal/models"
@@ -78,15 +79,15 @@ func (app *application) snippetView(w http.ResponseWriter, r *http.Request) {
 	app.render(w, http.StatusOK, "view.html", &templateData{Snippet: snippet})
 }
 
-// downloadFile phục vụ file tĩnh để tải về
-func (app *application) downloadFile(w http.ResponseWriter, r *http.Request) {
-	filename := r.URL.Query().Get("file")
+// // downloadFile phục vụ file tĩnh để tải về
+// func (app *application) downloadFile(w http.ResponseWriter, r *http.Request) {
+// 	filename := r.URL.Query().Get("file")
 
-	// Chuẩn hóa đường dẫn
-	cleanPath := filepath.Clean("./ui/static/" + filename)
+// 	// Chuẩn hóa đường dẫn
+// 	cleanPath := filepath.Clean("./ui/static/" + filename)
 
-	http.ServeFile(w, r, cleanPath)
-}
+// 	http.ServeFile(w, r, cleanPath)
+// }
 
 // noDirFileSystem là một wrapper quanh http.FileSystem để ngăn chặn việc liệt kê thư mục
 type noDirFileSystem struct {

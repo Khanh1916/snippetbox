@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"net/http"
 	"runtime/debug"
@@ -29,10 +30,14 @@ func (app *application) render(w http.ResponseWriter, status int, page string, d
 		return
 	}
 
-	w.WriteHeader(status)
-
-	err := ts.ExecuteTemplate(w, "base", data)
+	//Khoi tao buffer de test thu runtime error
+	buf := new(bytes.Buffer)
+	err := ts.ExecuteTemplate(buf, "base", data)
 	if err != nil {
-		app.serverError(w, err)
+		app.serverError(w, err) //báo biến w và trả về error
 	}
+
+	w.WriteHeader(status) //Neu thanh cong se tra ve 200
+
+	buf.WriteTo(w) //Viet ket qua cua buffer vao w
 }
