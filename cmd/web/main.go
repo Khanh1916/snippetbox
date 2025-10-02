@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"flag"
+	"html/template"
 	"log"
 	"net/http"
 	"os"
@@ -20,10 +21,11 @@ type config struct {
 
 // Phần phụ trợ của ứng dụng, inject các depedencies vào các handlers
 type application struct {
-	errorLog *log.Logger
-	infoLog  *log.Logger
-	cfg      config
-	snippets *models.SnippetModel
+	errorLog      *log.Logger
+	infoLog       *log.Logger
+	cfg           config
+	snippets      *models.SnippetModel
+	templateCache map[string]*template.Template //add templateCache to application struct
 }
 
 func main() {
@@ -47,12 +49,18 @@ func main() {
 	}
 	defer db.Close()
 
+	templateCache, err := newTemplateCache()
+	if err != nil {
+		errorLog.Fatal(err)
+	}
+
 	// Tạo application
 	app := &application{
-		errorLog: errorLog,
-		infoLog:  infoLog,
-		cfg:      cfg,
-		snippets: &models.SnippetModel{DB: db},
+		errorLog:      errorLog,
+		infoLog:       infoLog,
+		cfg:           cfg,
+		snippets:      &models.SnippetModel{DB: db},
+		templateCache: templateCache,
 	}
 
 	// Tạo server HTTP để bắt được các error log từ server
