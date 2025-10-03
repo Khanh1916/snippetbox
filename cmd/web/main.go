@@ -64,7 +64,7 @@ func main() {
 	}
 
 	// Tạo server HTTP để bắt được các error log từ server
-	// (thay vì chỉ in ra stdout)
+	// (thay vì chỉ in ra stdout) cấu hình ở phần tạo logger
 	srv := &http.Server{
 		Addr:     app.cfg.addr,
 		ErrorLog: errorLog,
