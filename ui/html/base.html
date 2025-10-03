@@ -20,8 +20,10 @@
   <main>
     {{template "main" .}}
   </main>
-  <footer>Powered by <a href='https://golang.org/'>Go</a> - Made by <a href='https://github.com/Khanh1916'>Nguyen Nam
-      Khanh</a></footer>
+  <footer>
+    Powered by <a href='https://golang.org/'>Go</a> - Made by <a href='https://github.com/Khanh1916'>Nguyen Nam
+      Khanh</a> in {{.CurrentYear}}
+  </footer>
   <!-- And include the JavaScript file -->
   <script src="/static/js/main.js" type="text/javascript"></script>
 </body>

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"runtime/debug"
+	"time"
 )
 
 func (app *application) serverError(w http.ResponseWriter, err error) {
@@ -35,9 +36,14 @@ func (app *application) render(w http.ResponseWriter, status int, page string, d
 	err := ts.ExecuteTemplate(buf, "base", data)
 	if err != nil {
 		app.serverError(w, err) //báo biến w và trả về error
+		return
 	}
 
 	w.WriteHeader(status) //Neu thanh cong se tra ve 200
 
 	buf.WriteTo(w) //Viet ket qua cua buffer vao w
+}
+
+func (app *application) newTemplateData(r *http.Request) *templateData {
+	return &templateData{CurrentYear: time.Now().Year()}
 }
