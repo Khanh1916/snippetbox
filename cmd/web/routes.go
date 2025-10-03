@@ -2,7 +2,7 @@ package main
 
 import "net/http"
 
-func (app *application) routes() *http.ServeMux {
+func (app *application) routes() http.Handler {
 
 	mux := http.NewServeMux()
 	// Đăng các route cụ thể trước, rồi đến catch-all
@@ -20,5 +20,5 @@ func (app *application) routes() *http.ServeMux {
 
 	// Catch-all cuối cùng
 	mux.HandleFunc("/", app.home)
-	return mux
+	return secureHeaders(mux)
 }
