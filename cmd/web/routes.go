@@ -20,5 +20,5 @@ func (app *application) routes() http.Handler {
 
 	// Catch-all cuối cùng
 	mux.HandleFunc("/", app.home)
-	return app.logRequest(secureHeaders(mux))
+	return app.recoverPanic(app.logRequest(secureHeaders(mux)))
 }
