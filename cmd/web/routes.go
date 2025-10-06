@@ -9,6 +9,12 @@ import (
 
 func (app *application) routes() http.Handler {
 	router := httprouter.New()
+
+	//create handler function to wrap (app)notFound, assign it as the custom handler for 404 Not Found responses
+	router.NotFound = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		app.notFound(w)
+	})
+
 	router.HandlerFunc(http.MethodGet, "/", app.home)
 	router.HandlerFunc(http.MethodGet, "/snippet/view/:id", app.snippetView)
 	router.HandlerFunc(http.MethodGet, "/snippet/create", app.snippetCreate)
