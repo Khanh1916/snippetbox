@@ -8,6 +8,8 @@ import (
 
 	//"path/filepath"
 	"strconv"
+	"strings"
+	"unicode/utf8"
 
 	"github.com/Khanh1916/snippetbox/internal/models"
 	"github.com/julienschmidt/httprouter"
@@ -46,6 +48,28 @@ func (app *application) snippetCreatePost(w http.ResponseWriter, r *http.Request
 	expires, err := strconv.Atoi(r.PostForm.Get("expires"))
 	if err != nil {
 		app.clientError(w, http.StatusBadRequest)
+	}
+
+	// map includes errors in the validation
+	fieldsErrors := make(map[string]string)
+
+	if strings.TrimSpace(title) == "" {
+		fieldsErrors["title"] = "This field cannot be blank."
+	} else if utf8.RuneCountInString(title) > 100 {
+		fieldsErrors["title"] = "This field cannot be more than 100 characters long."
+	}
+
+	if strings.TrimSpace(content) == "" {
+		fieldsErrors["content"] = "This field cannot be blank."
+	}
+
+	if expires != 1 && expires != 7 && expires != 365 {
+		fieldsErrors["expires"] = "This field must be equal 1, 7 or 365."
+	}
+
+	if len(fieldsErrors) > 0 {
+		fmt.Fprint(w, fieldsErrors)
+		return
 	}
 
 	id, err := app.snippets.Insert(title, content, expires)
