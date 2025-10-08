@@ -7,8 +7,12 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/Khanh1916/snippetbox/internal/models"
+
+	"github.com/alexedwards/scs/mysqlstore"
+	"github.com/alexedwards/scs/v2"
 	"github.com/go-playground/form/v4"
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -22,12 +26,13 @@ type config struct {
 
 // Phần phụ trợ của ứng dụng, inject các depedencies vào các handlers
 type application struct {
-	errorLog      *log.Logger
-	infoLog       *log.Logger
-	cfg           config
-	snippets      *models.SnippetModel
-	templateCache map[string]*template.Template //add templateCache to application struct
-	formDecoder   *form.Decoder
+	errorLog       *log.Logger
+	infoLog        *log.Logger
+	cfg            config
+	snippets       *models.SnippetModel
+	templateCache  map[string]*template.Template //add templateCache to application struct
+	formDecoder    *form.Decoder
+	sessionManager *scs.SessionManager //add session manager for flash messages
 }
 
 func main() {
@@ -58,14 +63,19 @@ func main() {
 
 	formDecoder := form.NewDecoder()
 
+	sessionManager := scs.New()
+	sessionManager.Store = mysqlstore.New(db)
+	sessionManager.Lifetime = 12 * time.Hour
+
 	// Tạo application
 	app := &application{
-		errorLog:      errorLog,
-		infoLog:       infoLog,
-		cfg:           cfg,
-		snippets:      &models.SnippetModel{DB: db},
-		templateCache: templateCache,
-		formDecoder:   formDecoder,
+		errorLog:       errorLog,
+		infoLog:        infoLog,
+		cfg:            cfg,
+		snippets:       &models.SnippetModel{DB: db},
+		templateCache:  templateCache,
+		formDecoder:    formDecoder,
+		sessionManager: sessionManager,
 	}
 
 	// Tạo server HTTP để bắt được các error log từ server
