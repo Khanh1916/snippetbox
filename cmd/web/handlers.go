@@ -98,14 +98,9 @@ func (app *application) snippetView(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	//PopString - onetime fetch
-	flash := app.sessionManager.PopString(r.Context(), "flash")
-
 	data := app.newTemplateData(r)
 	data.Snippet = snippet
 
-	// Pass the flash message to the template.
-	data.Flash = flash
 	// Use the new render helper.
 	app.render(w, http.StatusOK, "view.html", data)
 }
