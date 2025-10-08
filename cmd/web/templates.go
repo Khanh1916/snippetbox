@@ -13,6 +13,7 @@ type templateData struct {
 	CurrentYear int // Add a CurrentYear field to the templateData struct.
 	Snippet     *models.Snippet
 	Snippets    []*models.Snippet
+	Form        any // Add Form to refill user data after error validating and displaying error in html
 }
 
 // cache template avoid duplicate parsing files many times
