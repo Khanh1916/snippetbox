@@ -9,6 +9,7 @@ import (
 	"os"
 
 	"github.com/Khanh1916/snippetbox/internal/models"
+	"github.com/go-playground/form/v4"
 	_ "github.com/go-sql-driver/mysql"
 )
 
@@ -26,6 +27,7 @@ type application struct {
 	cfg           config
 	snippets      *models.SnippetModel
 	templateCache map[string]*template.Template //add templateCache to application struct
+	formDecoder   *form.Decoder
 }
 
 func main() {
@@ -54,6 +56,8 @@ func main() {
 		errorLog.Fatal(err)
 	}
 
+	formDecoder := form.NewDecoder()
+
 	// Tạo application
 	app := &application{
 		errorLog:      errorLog,
@@ -61,6 +65,7 @@ func main() {
 		cfg:           cfg,
 		snippets:      &models.SnippetModel{DB: db},
 		templateCache: templateCache,
+		formDecoder:   formDecoder,
 	}
 
 	// Tạo server HTTP để bắt được các error log từ server
