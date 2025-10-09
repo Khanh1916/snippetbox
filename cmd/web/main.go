@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto/tls"
 	"database/sql"
 	"flag"
 	"html/template"
@@ -66,6 +67,7 @@ func main() {
 	sessionManager := scs.New()
 	sessionManager.Store = mysqlstore.New(db)
 	sessionManager.Lifetime = 12 * time.Hour
+	sessionManager.Cookie.Secure = true //cookie only sent through https with TLS
 
 	// Tạo application
 	app := &application{
@@ -78,16 +80,21 @@ func main() {
 		sessionManager: sessionManager,
 	}
 
+	tlsConfig := &tls.Config{
+		CurvePreferences: []tls.CurveID{tls.CurveP256, tls.X25519},
+	}
+
 	// Tạo server HTTP để bắt được các error log từ server
 	// (thay vì chỉ in ra stdout) cấu hình ở phần tạo logger
 	srv := &http.Server{
-		Addr:     app.cfg.addr,
-		ErrorLog: errorLog,
-		Handler:  app.routes(),
+		Addr:      app.cfg.addr,
+		ErrorLog:  errorLog,
+		Handler:   app.routes(),
+		TLSConfig: tlsConfig,
 	}
 
 	app.infoLog.Printf("Server started on %s", app.cfg.addr)
-	err = srv.ListenAndServe()
+	err = srv.ListenAndServeTLS("./tls/cert.pem", "./tls/key.pem")
 
 	if err != nil {
 		app.errorLog.Fatal(err)
