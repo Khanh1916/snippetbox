@@ -11,6 +11,11 @@ import (
 	"github.com/go-playground/form/v4"
 )
 
+// check the authenticated status of user
+func (app *application) isAuthenticated(r *http.Request) bool {
+	return app.sessionManager.Exists(r.Context(), "authenticatedUserID")
+}
+
 // encapsulate Error in decode stage (not client error) return a PANIC
 func (app *application) decodePostForm(r *http.Request, dst any) error {
 	err := r.ParseForm()
@@ -68,7 +73,8 @@ func (app *application) render(w http.ResponseWriter, status int, page string, d
 
 func (app *application) newTemplateData(r *http.Request) *templateData {
 	return &templateData{
-		CurrentYear: time.Now().Year(),
-		Flash:       app.sessionManager.PopString(r.Context(), "flash"), // add flash message to template data, if existing.
+		CurrentYear:     time.Now().Year(),
+		Flash:           app.sessionManager.PopString(r.Context(), "flash"), // add flash message to template data, if existing.
+		IsAuthenticated: app.isAuthenticated(r),                             // Add the authentication status to the template data.
 	}
 }
