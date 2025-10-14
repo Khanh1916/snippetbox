@@ -3,6 +3,7 @@ package main
 import (
 	"net/http"
 
+	"github.com/Khanh1916/snippetbox/ui"
 	"github.com/julienschmidt/httprouter"
 	"github.com/justinas/alice"
 )
@@ -15,10 +16,8 @@ func (app *application) routes() http.Handler {
 		app.notFound(w)
 	})
 
-	// File server cho static assets
-	fs := noDirFileSystem{http.Dir(app.cfg.staticDir)}
-	// StripPrefix để bỏ "/static" khỏi URL trước khi gửi đến file server
-	router.Handler(http.MethodGet, "/static/*filepath", http.StripPrefix("/static", http.FileServer(fs)))
+	fileServer := http.FileServer(http.FS(ui.Files))
+	router.Handler(http.MethodGet, "/static/*filepath", fileServer)
 
 	// dynamic application routes - Unprotected application routes
 	dynamic := alice.New(app.sessionManager.LoadAndSave, noSurf, app.authenticate)
