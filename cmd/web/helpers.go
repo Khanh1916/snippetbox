@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/go-playground/form/v4"
+	"github.com/justinas/nosurf"
 )
 
 // check the authenticated status of user
@@ -74,7 +75,8 @@ func (app *application) render(w http.ResponseWriter, status int, page string, d
 func (app *application) newTemplateData(r *http.Request) *templateData {
 	return &templateData{
 		CurrentYear:     time.Now().Year(),
-		Flash:           app.sessionManager.PopString(r.Context(), "flash"), // add flash message to template data, if existing.
+		Flash:           app.sessionManager.PopString(r.Context(), "flash"), // Add flash message to template data, if existing.
 		IsAuthenticated: app.isAuthenticated(r),                             // Add the authentication status to the template data.
+		CSRFToken:       nosurf.Token(r),                                    // Add to newtemplate to be available each time rendering.
 	}
 }

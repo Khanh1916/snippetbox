@@ -10,12 +10,13 @@ import (
 
 // struct lưu trữ được nhiều mảnh dynamic data thay vì chỉ một mảnh
 type templateData struct {
-	CurrentYear     int // Add a CurrentYear field to the templateData struct.
+	CurrentYear     int // Add a CurrentYear field to the templateData struct
 	Snippet         *models.Snippet
 	Snippets        []*models.Snippet
 	Form            any    // Add Form to refill user data after error validating and displaying error in html
 	Flash           string // Add a Flash field to display flash message
 	IsAuthenticated bool
+	CSRFToken       string // Add CSRFToken field
 }
 
 // cache template avoid duplicate parsing files many times
