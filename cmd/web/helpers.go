@@ -14,7 +14,12 @@ import (
 
 // check the authenticated status of user
 func (app *application) isAuthenticated(r *http.Request) bool {
-	return app.sessionManager.Exists(r.Context(), "authenticatedUserID")
+	// instead of checking session data, checks request context
+	isAuthenticated, ok := r.Context().Value(isAuthenticatedContextKey).(bool)
+	if !ok {
+		return false
+	}
+	return isAuthenticated
 }
 
 // encapsulate Error in decode stage (not client error) return a PANIC
