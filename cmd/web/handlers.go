@@ -261,3 +261,7 @@ func (n noDirFileSystem) Open(name string) (http.File, error) {
 	}
 	return f, nil
 }
+
+func ping(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("OK"))
+}
