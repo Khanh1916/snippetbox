@@ -1,0 +1,62 @@
+package main
+
+import (
+	"bytes"
+	"io"
+	"net/http"
+	"net/http/httptest"
+	"testing"
+
+	"github.com/Khanh1916/snippetbox/internal/assert"
+)
+
+func TestSecureHeaders(t *testing.T) {
+	rr := httptest.NewRecorder()
+
+	//create dummy http request
+	r, err := http.NewRequest(http.MethodGet, "/", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	//create mock http handler to pass through middleware
+	next := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("OK"))
+	})
+
+	//pass http handler to middleware and return other http handler, so that call servehttp to pass Recorder
+	secureHeaders(next).ServeHTTP(rr, r)
+
+	//get a result
+	rs := rr.Result()
+
+	//check header
+	expectedValue := "default-src 'self'; style-src 'self' fonts.googleapis.com; font-src fonts.gstatic.com"
+	assert.Equal(t, rs.Header.Get("Content-Security-Policy"), expectedValue)
+
+	expectedValue = "origin-when-cross-origin"
+	assert.Equal(t, rs.Header.Get("Referrer-Policy"), expectedValue)
+
+	expectedValue = "nosniff"
+	assert.Equal(t, rs.Header.Get("X-Content-Type-Options"), expectedValue)
+
+	expectedValue = "deny"
+	assert.Equal(t, rs.Header.Get("X-Frame-Options"), expectedValue)
+
+	expectedValue = "0"
+	assert.Equal(t, rs.Header.Get("X-XSS-Protection"), expectedValue)
+
+	//check status code
+	assert.Equal(t, rs.StatusCode, http.StatusOK)
+
+	//check the body respone
+	defer rs.Body.Close()
+	body, err := io.ReadAll(rs.Body)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	bytes.TrimSpace(body)
+
+	assert.Equal(t, string(body), "OK")
+}
