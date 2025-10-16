@@ -5,6 +5,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"net/http/cookiejar"
 	"net/http/httptest"
 	"testing"
 )
@@ -25,7 +26,23 @@ type testServer struct {
 // Create a newTestServer helper which initalizes and returns a new instance
 // of our custom testServer type.
 func newTestServer(t *testing.T, h http.Handler) *testServer {
-	ts := httptest.NewTLSServer(h)
+	ts := httptest.NewTLSServer(h) //intialize test server
+
+	//initalize a new cookie jar
+	jar, err := cookiejar.New(nil) // stoted cookie for client
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// add cookie jar to test server client
+	//any response cookie be stored and using to subsequent request after.
+	ts.Client().Jar = jar
+
+	// disable redirect-following
+	ts.Client().CheckRedirect = func(req *http.Request, via []*http.Request) error {
+		return http.ErrUseLastResponse
+	}
+
 	return &testServer{ts}
 }
 
