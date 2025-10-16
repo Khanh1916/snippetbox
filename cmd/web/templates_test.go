@@ -7,7 +7,7 @@ import (
 	"github.com/Khanh1916/snippetbox/internal/assert"
 )
 
-func TestHumaDate(t *testing.T) {
+func TestHumanDate(t *testing.T) {
 
 	tests := []struct {
 		name string

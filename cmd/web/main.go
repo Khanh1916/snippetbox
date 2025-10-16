@@ -30,8 +30,8 @@ type application struct {
 	errorLog       *log.Logger
 	infoLog        *log.Logger
 	cfg            config
-	snippets       *models.SnippetModel
-	users          *models.UserModel
+	snippets       models.SnippetModelInterface // Use our new interface type.
+	users          models.UserModelInterface
 	templateCache  map[string]*template.Template //add templateCache to application struct
 	formDecoder    *form.Decoder
 	sessionManager *scs.SessionManager //add session manager for flash messages
