@@ -93,9 +93,9 @@ func TestUserSignup(t *testing.T) {
 	validCSRFToken := extractCSRFToken(t, body)
 
 	const (
-		validName     = "Bob"
-		validPassword = "validPa$$word"
-		validEmail    = "bob@example.com"
+		validName     = "KhanhNN"
+		validPassword = "12345678"
+		validEmail    = "khanhnn@gmail.com"
 		formTag       = "<form action='/user/signup' method='POST' novalidate>"
 	)
 
@@ -154,7 +154,7 @@ func TestUserSignup(t *testing.T) {
 		{
 			name:         "Invalid email",
 			userName:     validName,
-			userEmail:    "bob@example.",
+			userEmail:    "khanhnn@gmail.",
 			userPassword: validPassword,
 			csrfToken:    validCSRFToken,
 			wantCode:     http.StatusUnprocessableEntity,
