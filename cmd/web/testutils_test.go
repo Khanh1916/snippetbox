@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/http/cookiejar"
 	"net/http/httptest"
+	"net/url"
 	"regexp"
 	"testing"
 	"time"
@@ -26,7 +27,7 @@ func extractCSRFToken(t *testing.T, body string) string {
 		t.Fatal("no csrf token found in the body")
 	}
 
-	return html.EscapeString(string(matches[1]))
+	return html.UnescapeString(string(matches[1]))
 }
 
 // new testApp to create instance serve for test
@@ -61,16 +62,16 @@ type testServer struct {
 // Create a newTestServer helper which initalizes and returns a new instance
 // of our custom testServer type.
 func newTestServer(t *testing.T, h http.Handler) *testServer {
-	ts := httptest.NewTLSServer(h) //intialize test server
+	ts := httptest.NewTLSServer(h) //initialize test server with HTTPS
 
-	//initalize a new cookie jar
-	jar, err := cookiejar.New(nil) // stoted cookie for client
+	//initialize a new cookie jar
+	jar, err := cookiejar.New(nil) // stored cookie for client
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	// add cookie jar to test server client
-	//any response cookie be stored and using to subsequent request after.
+	//any response cookies will be stored and used in subsequent requests
 	ts.Client().Jar = jar
 
 	// disable redirect-following
@@ -95,5 +96,24 @@ func (ts *testServer) get(t *testing.T, urlPath string) (int, http.Header, strin
 
 	bytes.TrimSpace(body)
 
+	return rs.StatusCode, rs.Header, string(body)
+}
+
+// Create a postForm method for sending POST requests to the test server.
+func (ts *testServer) postForm(t *testing.T, urlPath string, form url.Values) (int, http.Header, string) {
+	rs, err := ts.Client().PostForm(ts.URL+urlPath, form)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Read the response body from the test server.
+	defer rs.Body.Close()
+	body, err := io.ReadAll(rs.Body)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	body = bytes.TrimSpace(body)
+	// Return the response status, headers and body.
 	return rs.StatusCode, rs.Header, string(body)
 }
