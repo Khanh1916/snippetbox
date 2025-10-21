@@ -215,6 +215,12 @@ func (app *application) userLoginPost(w http.ResponseWriter, r *http.Request) {
 
 	app.sessionManager.Put(r.Context(), "authenticatedUserID", id) // adding authen ID for user session into sessionManager
 
+	//PopString method to retrieve and remove a value from the session data in one step.
+	path := app.sessionManager.PopString(r.Context(), "redirectPathAfterLogin")
+	if path != "" { // if not empty redirect to the path before authenticating
+		http.Redirect(w, r, path, http.StatusSeeOther)
+	}
+
 	http.Redirect(w, r, "/snippet/create", http.StatusSeeOther)
 }
 
