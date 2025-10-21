@@ -19,6 +19,7 @@ type templateData struct {
 	Flash           string // Add a Flash field to display flash message
 	IsAuthenticated bool
 	CSRFToken       string // Add CSRFToken field
+	User            *models.User
 }
 
 // cache template avoid duplicate parsing files many times
