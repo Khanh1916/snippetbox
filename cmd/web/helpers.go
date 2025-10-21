@@ -45,6 +45,12 @@ func (app *application) serverError(w http.ResponseWriter, err error) {
 	trace := fmt.Sprintf("%s/n%s", err.Error(), debug.Stack()) // debug.Stack() trả về stack trace
 	app.errorLog.Output(2, trace)                              // ghi log với số dòng chính xác của lỗi (n=2)
 	// http.Error(w, "Internal Server Error", 500)
+
+	// execute if flag 'debug' is true
+	if app.cfg.debug {
+		http.Error(w, trace, http.StatusInternalServerError)
+	}
+
 	http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 }
 

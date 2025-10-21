@@ -23,6 +23,7 @@ type config struct {
 	addr      string
 	staticDir string
 	dsn       string
+	debug     bool
 }
 
 // Phần phụ trợ của ứng dụng, inject các depedencies vào các handlers
@@ -45,6 +46,7 @@ func main() {
 	flag.StringVar(&cfg.addr, "addr", ":4000", "HTTP network address")
 	flag.StringVar(&cfg.staticDir, "static-dir", "./ui/static", "Path to static assets")
 	flag.StringVar(&cfg.dsn, "dsn", "web:pass@/snippetbox?parseTime=true", "MySQL data source name")
+	flag.BoolVar(&cfg.debug, "debug", false, "Enable debug mode")
 	flag.Parse()
 
 	// Tạo loggers
