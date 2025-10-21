@@ -4,7 +4,8 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"os"
+
+	//"os"
 
 	//"path/filepath"
 	"strconv"
@@ -234,33 +235,33 @@ func (app *application) userLogoutPost(w http.ResponseWriter, r *http.Request) {
 // // downloadFile phục vụ file tĩnh để tải về
 // func (app *application) downloadFile(w http.ResponseWriter, r *http.Request) {
 // 	filename := r.URL.Query().Get("file")
-
+//
 // 	// Chuẩn hóa đường dẫn
 // 	cleanPath := filepath.Clean("./ui/static/" + filename)
-
+//
 // 	http.ServeFile(w, r, cleanPath)
 // }
 
-// noDirFileSystem là một wrapper quanh http.FileSystem để ngăn chặn việc liệt kê thư mục
-type noDirFileSystem struct {
-	fs http.FileSystem
-}
+// // noDirFileSystem là một wrapper quanh http.FileSystem để ngăn chặn việc liệt kê thư mục
+// type noDirFileSystem struct {
+// 	fs http.FileSystem
+// }
 
-// Open mở file và trả về lỗi nếu đó là một thư mục
-func (n noDirFileSystem) Open(name string) (http.File, error) {
-	f, err := n.fs.Open(name) // mở file
-	if err != nil {
-		return nil, err
-	}
-	s, err := f.Stat() // lấy thông tin file
-	if err != nil {
-		return nil, err
-	}
-	if s.IsDir() { // nếu là thư mục
-		return nil, os.ErrNotExist
-	}
-	return f, nil
-}
+// // Open mở file và trả về lỗi nếu đó là một thư mục
+// func (n noDirFileSystem) Open(name string) (http.File, error) {
+// 	f, err := n.fs.Open(name) // mở file
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	s, err := f.Stat() // lấy thông tin file
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	if s.IsDir() { // nếu là thư mục
+// 		return nil, os.ErrNotExist
+// 	}
+// 	return f, nil
+// }
 
 func ping(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("OK"))
