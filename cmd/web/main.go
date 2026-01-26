@@ -42,16 +42,27 @@ func main() {
 	// Khởi tạo cấu hình
 	cfg := config{}
 
-	// Đọc cờ dòng lệnh
-	flag.StringVar(&cfg.addr, "addr", ":4000", "HTTP network address")
-	flag.StringVar(&cfg.staticDir, "static-dir", "./ui/static", "Path to static assets")
-	flag.StringVar(&cfg.dsn, "dsn", "web:pass@/snippetbox?parseTime=true", "MySQL data source name")
-	flag.BoolVar(&cfg.debug, "debug", false, "Enable debug mode")
-	flag.Parse()
-
 	// Tạo loggers
 	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
 	errorLog := log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
+
+	// Đọc cờ dòng lệnh
+	flag.StringVar(&cfg.addr, "addr", ":4000", "HTTP network address")
+	flag.StringVar(&cfg.staticDir, "static-dir", "./ui/static", "Path to static assets")
+	flag.StringVar(&cfg.dsn, "dsn", "", "MySQL data source name")
+	flag.BoolVar(&cfg.debug, "debug", false, "Enable debug mode")
+	flag.Parse()
+	if !cfg.debug {
+		if os.Getenv("DEBUG") == "true" {
+			cfg.debug = true
+		}
+	}
+	if cfg.dsn == "" {
+		cfg.dsn = os.Getenv("DB_DSN")
+	}
+	if cfg.dsn == "" {
+		errorLog.Fatal("DB_DSN is not set")
+	}
 
 	// Mở kết nối đến MySQL
 	db, err := openDB(cfg.dsn)
@@ -70,7 +81,11 @@ func main() {
 	sessionManager := scs.New()
 	sessionManager.Store = mysqlstore.New(db)
 	sessionManager.Lifetime = 12 * time.Hour
-	sessionManager.Cookie.Secure = true //cookie only sent through https with TLS
+	if cfg.debug {
+		sessionManager.Cookie.Secure = false
+	} else {
+		sessionManager.Cookie.Secure = true //cookie only sent through https with TLS
+	}
 
 	// Tạo application
 	app := &application{
@@ -102,8 +117,11 @@ func main() {
 	}
 
 	app.infoLog.Printf("Server started on %s", app.cfg.addr)
-	err = srv.ListenAndServeTLS("./tls/cert.pem", "./tls/key.pem")
-
+	if cfg.debug {
+		err = srv.ListenAndServe()
+	} else {
+		err = srv.ListenAndServeTLS("./tls/cert.pem", "./tls/key.pem")
+	}
 	if err != nil {
 		app.errorLog.Fatal(err)
 	}
