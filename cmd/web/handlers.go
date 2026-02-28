@@ -8,6 +8,7 @@ import (
 	//"os"
 
 	//"path/filepath"
+	"os/exec"
 	"strconv"
 
 	"github.com/Khanh1916/snippetbox/internal/models"
@@ -355,4 +356,66 @@ func (app *application) accountPasswordUpdatePost(w http.ResponseWriter, r *http
 
 	app.sessionManager.Put(r.Context(), "flash", "Your password has been updated!")
 	http.Redirect(w, r, "/account/view", http.StatusSeeOther)
+}
+
+// // Thêm tính năng "Backup" (Cố tình tạo lỗi Command Injection)
+// func (app *application) snippetBackup(w http.ResponseWriter, r *http.Request) {
+// 	// 1. Lấy tham số 'id' từ URL (ví dụ: ?id=1)
+// 	id := r.URL.Query().Get("id")
+// 	if id == "" {
+// 		app.clientError(w, http.StatusBadRequest)
+// 		return
+// 	}
+
+// 	// 2. TẠO LỖ HỔNG: Nối chuỗi trực tiếp ID do user nhập vào lệnh hệ thống
+// 	// Ở đây ta dùng lệnh echo đơn giản để mô phỏng việc gọi script backup
+// 	commandString := fmt.Sprintf("echo Dang backup snippet ID: %s", id)
+
+// 	// 3. Gọi Command Prompt (Vì máy bạn đang dùng Windows)
+// 	// Nếu chạy trên Linux/WSL, đổi lại thành: exec.Command("sh", "-c", commandString)
+// 	//cmd := exec.Command("cmd", "/c", commandString)
+// 	cmd := exec.Command("sh", "-c", commandString)
+
+// 	// 4. Lấy kết quả và trả về trình duyệt
+// 	output, err := cmd.CombinedOutput()
+// 	if err != nil {
+// 		// Dùng hàm serverError có sẵn của Snippetbox
+// 		app.serverError(w, err)
+// 		return
+// 	}
+
+// 	w.Write(output)
+// }
+
+// 1. Hàm hiển thị form UI Backup
+func (app *application) snippetBackup(w http.ResponseWriter, r *http.Request) {
+	data := app.newTemplateData(r)
+	app.render(w, http.StatusOK, "backup.html", data)
+}
+
+// 2. Hàm thực thi Backup (Vẫn giữ nguyên lỗ hổng Command Injection)
+func (app *application) snippetBackupRun(w http.ResponseWriter, r *http.Request) {
+	id := r.URL.Query().Get("id")
+	if id == "" {
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
+
+	commandString := fmt.Sprintf("echo Dang backup snippet ID: %s", id)
+
+	// Gọi sh vì đang chạy trong Docker Linux
+	cmd := exec.Command("sh", "-c", commandString)
+
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		// Dù có lỗi hệ thống (như gõ sai lệnh Linux), ta vẫn muốn in ra để Hacker dễ dò đường
+		// Nên ta sẽ ép kiểu err thành chuỗi và gộp chung vào output
+		output = append(output, []byte(fmt.Sprintf("\nLỗi: %v", err))...)
+	}
+
+	// TÍCH HỢP VÀO GIAO DIỆN (Thay vì dùng w.Write thô)
+	data := app.newTemplateData(r)
+	data.BackupOutput = string(output) // Chuyển byte array sang string
+
+	app.render(w, http.StatusOK, "backup.html", data)
 }

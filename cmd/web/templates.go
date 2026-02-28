@@ -20,6 +20,7 @@ type templateData struct {
 	IsAuthenticated bool
 	CSRFToken       string // Add CSRFToken field
 	User            *models.User
+	BackupOutput    string
 }
 
 // cache template avoid duplicate parsing files many times
