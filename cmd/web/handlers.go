@@ -387,13 +387,11 @@ func (app *application) accountPasswordUpdatePost(w http.ResponseWriter, r *http
 // 	w.Write(output)
 // }
 
-// 1. Hàm hiển thị form UI Backup
 func (app *application) snippetBackup(w http.ResponseWriter, r *http.Request) {
 	data := app.newTemplateData(r)
 	app.render(w, http.StatusOK, "backup.html", data)
 }
 
-// 2. Hàm thực thi Backup (Vẫn giữ nguyên lỗ hổng Command Injection)
 func (app *application) snippetBackupRun(w http.ResponseWriter, r *http.Request) {
 	id := r.URL.Query().Get("id")
 	if id == "" {
@@ -403,19 +401,16 @@ func (app *application) snippetBackupRun(w http.ResponseWriter, r *http.Request)
 
 	commandString := fmt.Sprintf("echo Dang backup snippet ID: %s", id)
 
-	// Gọi sh vì đang chạy trong Docker Linux
 	cmd := exec.Command("sh", "-c", commandString)
 
 	output, err := cmd.CombinedOutput()
 	if err != nil {
-		// Dù có lỗi hệ thống (như gõ sai lệnh Linux), ta vẫn muốn in ra để Hacker dễ dò đường
-		// Nên ta sẽ ép kiểu err thành chuỗi và gộp chung vào output
+		// ép kiểu err thành chuỗi và gộp chung vào output
 		output = append(output, []byte(fmt.Sprintf("\nLỗi: %v", err))...)
 	}
 
-	// TÍCH HỢP VÀO GIAO DIỆN (Thay vì dùng w.Write thô)
 	data := app.newTemplateData(r)
-	data.BackupOutput = string(output) // Chuyển byte array sang string
+	data.BackupOutput = string(output)
 
 	app.render(w, http.StatusOK, "backup.html", data)
 }
