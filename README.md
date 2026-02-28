@@ -1,15 +1,15 @@
 Snippetbox powered by Go (RCE vulnerable lab version) - made by Khanh
 ---
 
-# 🚨 Vulnerable Snippetbox: OS Command Injection (RCE) Lab
+# Vulnerable Snippetbox: OS Command Injection (RCE) Lab
 
 Dự án này là một phiên bản mở rộng của ứng dụng **Snippetbox** (viết bằng Golang). Nó bao gồm các tính năng tiêu chuẩn của một web app và được cố tình cấy thêm lỗ hổng **OS Command Injection (Remote Code Execution - RCE)** để phục vụ mục đích học tập và thực hành Pentest.
 
-**CẢNH BÁO:** Dự án này chứa lỗ hổng bảo mật nghiêm trọng. Chỉ sử dụng trong môi trường an toàn (Docker/Localhost). Tuyệt đối không deploy lên Production.
+**CẢNH BÁO:** Dự án này chứa lỗ hổng bảo mật nghiêm trọng. Chỉ sử dụng trong môi trường an toàn (Docker/Localhost).
 
 ---
 
-## 🌟 Giới thiệu & Tính năng (Features)
+## Giới thiệu & Tính năng (Features)
 
 Snippetbox là một ứng dụng web cho phép người dùng chia sẻ các đoạn văn bản hoặc mã nguồn (tương tự như Pastebin). Các tính năng chính bao gồm:
 
@@ -17,7 +17,7 @@ Snippetbox là một ứng dụng web cho phép người dùng chia sẻ các đ
 * **Xem Snippet (View):** Đọc nội dung chi tiết của một Snippet thông qua ID.
 * **Xác thực người dùng (Authentication):** Đăng ký (Signup), Đăng nhập (Login), Đăng xuất (Logout) an toàn với phân quyền (Session).
 * **Tạo Snippet (Create):** Tính năng được bảo vệ, chỉ user đã đăng nhập mới có thể tạo mới Snippet.
-* **🔥 Backup Snippet (Vulnerable Feature):** Tính năng mô phỏng việc sao lưu dữ liệu. Người dùng nhập ID để server chạy lệnh nén hoặc ghi log dưới nền hệ điều hành.
+* **Backup Snippet (Vulnerable Feature):** Tính năng mô phỏng việc sao lưu dữ liệu. Người dùng nhập ID để server chạy lệnh nén hoặc ghi log dưới nền hệ điều hành.
 
 ---
 
