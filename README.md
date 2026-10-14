@@ -7,7 +7,7 @@
 ![HTML](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)
 ![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=for-the-badge&logo=docker&logoColor=white)
 ![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
-![Status](https://img.shields.io/badge/Status-Production-ready-success?style=for-the-badge)
+![Status](https://img.shields.io/badge/Status-Production--ready-success?style=for-the-badge)
 
 <p align="center">
   A modern Go web application for creating, sharing, and managing code snippets.
